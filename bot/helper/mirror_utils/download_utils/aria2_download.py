@@ -31,7 +31,7 @@ class AriaDownloadHelper(DownloadHelper):
             gdrive = GoogleDriveHelper(None)
             smsg, button = gdrive.drive_list(sname)
           if smsg:
-              dl.getListener().onDownloadError(f'File is already available in Drive.\n\n')
+              dl.getListener().onDownloadError(f'<code>File is already available in Drive.😡</code>\n\n📒 <i> Must Search Files! Before Mirroring</i>')
               sendMarkup("Here are the search results:", dl.getListener().bot, dl.getListener().update, button)
               aria2.remove([download])
               return
@@ -40,7 +40,7 @@ class AriaDownloadHelper(DownloadHelper):
         if ENABLE_FILESIZE_LIMIT:
           if size / 1024 / 1024 / 1024 > MAX_TORRENT_SIZE:
               LOGGER.info(f"Download size Exceeded: {gid}")
-              dl.getListener().onDownloadError(f'File size {get_readable_file_size(size)} larger than Maximum Allowed size {MAX_TORRENT_SIZE}GB')
+              dl.getListener().onDownloadError(f'📀 𝗙𝗶𝗹𝗲 𝗦𝗶𝘇𝗲:\n➩ 〘{get_readable_file_size(size)}〙\n\n🏷️ 𝗠𝗶𝗿𝗿𝗼𝗿 𝗟𝗶𝗺𝗶𝘁: {MAX_TORRENT_SIZE}GB')
               aria2.remove([download])
               return
         update_all_messages()
@@ -66,13 +66,13 @@ class AriaDownloadHelper(DownloadHelper):
     def __onDownloadPause(self, api, gid):
         LOGGER.info(f"onDownloadPause: {gid}")
         dl = getDownloadByGid(gid)
-        dl.getListener().onDownloadError('Download stopped by user!')
+        dl.getListener().onDownloadError('𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱 𝘀𝘁𝗼𝗽𝗽𝗲𝗱 𝗯𝘆 𝘂𝘀𝗲𝗿!')
 
     @new_thread
     def __onDownloadStopped(self, api, gid):
         LOGGER.info(f"onDownloadStop: {gid}")
         dl = getDownloadByGid(gid)
-        if dl: dl.getListener().onDownloadError('Dead torrent!')
+        if dl: dl.getListener().onDownloadError('𝘠𝘰𝘶𝘳 𝘛𝘰𝘳𝘳𝘦𝘯𝘵 𝘪𝘴 𝘋𝘦𝘢𝘥.\n\n★ NO SEEDS AVAILABLE IN YOUR LINK\n\n⛔ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒄𝒉𝒆𝒄𝒌 𝒚𝒐𝒖𝒓 𝒍𝒊𝒏𝒌! 𝑩𝒆𝒇𝒐𝒓𝒆 𝑴𝒊𝒓𝒓𝒐𝒓')
 
     @new_thread
     def __onDownloadError(self, api, gid):
