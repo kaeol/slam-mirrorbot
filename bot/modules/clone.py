@@ -13,13 +13,13 @@ def cloneNode(update, context):
         link = args[1]
         gd = GoogleDriveHelper()
         if CLONE_LIMIT is not None:
-            mssg = sendMessage(f"Checking The Size...", context.bot, update)
+            mssg = sendMessage(f"<code>Checking The Size...</code>", context.bot, update)
             limit = CLONE_LIMIT
             limit = limit.split(' ', maxsplit=1)
             limitint = int(limit[0])
             res, clonesizelimit = gd.count(link)
             if clonesizelimit != "":
-                msgg = f'Failed, Clone limit is {CLONE_LIMIT}'
+                msgg = f'<b>Clone limit is</b> <code>{CLONE_LIMIT}</code>'
                 if 'GB' in limit or 'gb' in limit:
                     if clonesizelimit > limitint * 1024**3:
                         deleteMessage(context.bot, mssg)
@@ -38,7 +38,7 @@ def cloneNode(update, context):
                 deleteMessage(context.bot, mssg)
                 sendMessage(res, context.bot, update)
                 return
-        msg = sendMessage(f"Cloning: <code>{link}</code>", context.bot, update)
+        msg = sendMessage(f"<code>Cloning... wait</code>\n\nLink: <code>{link}</code>", context.bot, update)
         result, button = gd.clone(link)
         deleteMessage(context.bot, msg)
         if button == "":
@@ -49,10 +49,10 @@ def cloneNode(update, context):
             else:
                 uname = f'<a href="tg://user?id={update.message.from_user.id}">{update.message.from_user.first_name}</a>'
             if uname is not None:
-                cc = f'\n\n#cc: {uname}'
+                    cc = f'\n\n<b>👤 Uploader: </b>👉 {uname}\n\n ⛔ 𝘿𝙤 𝙣𝙤𝙩 𝙨𝙝𝙖𝙧𝙚 𝙄𝙣𝙙𝙚𝙭 𝙇𝙞𝙣𝙠🙂 \n\n🛡️𝗣𝗼𝘄𝗲𝗿𝗲𝗱 𝗕𝘆: <b>@TGFilmZone</b>'
             sendMarkup(result + cc, context.bot, update, button)
     else:
-        sendMessage('Provide G-Drive Shareable Link to Clone.', context.bot, update)
+        sendMessage('<b>Provide G-Drive Shareable Link to Clone</b>.', context.bot, update)
 
 clone_handler = CommandHandler(BotCommands.CloneCommand, cloneNode, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
 dispatcher.add_handler(clone_handler)
