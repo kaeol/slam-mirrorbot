@@ -3,42 +3,50 @@ from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.telegram_helper.message_utils import sendMarkup, deleteMessage, sendMessage
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
-from bot import dispatcher, CLONE_LIMIT
-
-
+from bot import dispatcher, CLONE_LIMIT, STOP_DUPLICATE_CLONE
+from bot.helper.ext_utils.bot_utils import get_readable_file_size
+ 
+ 
 @run_async
 def cloneNode(update, context):
     args = update.message.text.split(" ", maxsplit=1)
     if len(args) > 1:
         link = args[1]
         gd = GoogleDriveHelper()
+        if CLONE_LIMIT is not None or STOP_DUPLICATE_CLONE:
+            msg1 = sendMessage(f"Checking Your Link...", context.bot, update)
+            res, clonesize, name = gd.clonehelper(link)
+            if res != "":
+               deleteMessage(context.bot, msg1)
+               sendMessage(res, context.bot, update)
+               return
+        if STOP_DUPLICATE_CLONE:
+            smsg, button = gd.drive_list(name)
+            if smsg:
+                deleteMessage(context.bot, msg1)
+                msg3 = "<code>File/Folder is already available in Drive 😡</code>.\n\n<b>Here are the search results:</b>"
+                sendMarkup(msg3, context.bot, update, button)
+                return
         if CLONE_LIMIT is not None:
-            mssg = sendMessage(f"<code>Checking The Size...</code>", context.bot, update)
             limit = CLONE_LIMIT
             limit = limit.split(' ', maxsplit=1)
             limitint = int(limit[0])
-            res, clonesizelimit = gd.count(link)
-            if clonesizelimit != "":
-                msgg = f'<b>Clone limit is</b> <code>{CLONE_LIMIT}</code>'
-                if 'GB' in limit or 'gb' in limit:
-                    if clonesizelimit > limitint * 1024**3:
-                        deleteMessage(context.bot, mssg)
-                        sendMessage(msgg, context.bot, update)
-                        return
-                    else:
-                        deleteMessage(context.bot, mssg)
-                elif 'TB' in limit or 'tb' in limit:
-                    if clonesizelimit > limitint * 1024**4:
-                        deleteMessage(context.bot, mssg)
-                        sendMessage(msgg, context.bot, update)
-                        return
-                    else:
-                        deleteMessage(context.bot, mssg)
-            else:
-                deleteMessage(context.bot, mssg)
-                sendMessage(res, context.bot, update)
-                return
-        msg = sendMessage(f"<code>Cloning... wait</code>\n\nLink: <code>{link}</code>", context.bot, update)
+            msg2 = f'<b> Your Link Size </b>: <code>{get_readable_file_size(clonesize)}</code>\n\n<b> Cloning Limit is:</b> ➩ <code>{CLONE_LIMIT}.</code>.'
+            if 'GB' in limit or 'gb' in limit:
+                if clonesize > limitint * 1024**3:
+                    deleteMessage(context.bot, msg1)
+                    sendMessage(msg2, context.bot, update)
+                    return
+                else:
+                    deleteMessage(context.bot, msg1)
+            elif 'TB' in limit or 'tb' in limit:
+                if clonesize > limitint * 1024**4:
+                    deleteMessage(context.bot, msg1)
+                    sendMessage(msg2, context.bot, update)
+                    return
+                else:
+                    deleteMessage(context.bot, msg1)                
+        msg = sendMessage(f"<code>Cloning!! wait please....</code>\n\n⚡ Link: <code>{link}</code>", context.bot, update)
         result, button = gd.clone(link)
         deleteMessage(context.bot, msg)
         if button == "":
@@ -52,7 +60,7 @@ def cloneNode(update, context):
                     cc = f'\n\n<b>👤 Uploader: </b>👉 {uname}\n\n ⛔ 𝘿𝙤 𝙣𝙤𝙩 𝙨𝙝𝙖𝙧𝙚 𝙄𝙣𝙙𝙚𝙭 𝙇𝙞𝙣𝙠🙂 \n\n🛡️𝗣𝗼𝘄𝗲𝗿𝗲𝗱 𝗕𝘆: <b>@TGFilmZone</b>'
             sendMarkup(result + cc, context.bot, update, button)
     else:
-        sendMessage('<b>Provide G-Drive Shareable Link to Clone</b>.', context.bot, update)
-
+        sendMessage('<code>Provide G-Drive Shareable Link to Clone.</code>', context.bot, update)
+ 
 clone_handler = CommandHandler(BotCommands.CloneCommand, cloneNode, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
 dispatcher.add_handler(clone_handler)
