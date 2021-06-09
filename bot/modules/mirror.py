@@ -150,9 +150,9 @@ class MirrorListener(listeners.MirrorListeners):
         with download_dict_lock:
             msg = f'<b>📗 FileName: </b><code>{download_dict[self.uid].name()}</code>\n\n<b>📀 Total Size:</b> <code>{size}</code>'
             if os.path.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{download_dict[self.uid].name()}'):
-                msg += '\n\n<b>Type:</b> <code>Folder</code>'
-                msg += f'\n<b>SubFolders:</b> <code>{folders}</code>'
-                msg += f'\n<b>Files:</b> <code>{files}</code>'
+                msg += '\n\n<b>⚡ Type:</b> <code>Folder</code>'
+                msg += f'\n<b>📦 SubFolders:</b> <code>{folders}</code>'
+                msg += f'\n<b>📋 Files:</b> <code>{files}</code>'
             else:
                 msg += f'\n<b>⚡ Type:</b> <code>{typ}</code>'
             buttons = button_build.ButtonMaker()
@@ -292,9 +292,9 @@ def _mirror(bot, update, isTar=False, extract=False):
     if bot_utils.is_mega_link(link):
         link_type = get_mega_link_type(link)
         if link_type == "folder" and BLOCK_MEGA_FOLDER:
-            sendMessage("Mega folder are blocked!", bot, update)
+            sendMessage("<code>Mega folder are blocked!</code>", bot, update)
         elif BLOCK_MEGA_LINKS:
-            sendMessage("Mega links are blocked!", bot, update)
+            sendMessage("<code>Mega links are blocked!</code>", bot, update)
         else:
             mega_dl = MegaDownloadHelper()
             mega_dl.add_download(link, f'{DOWNLOAD_DIR}/{listener.uid}/', listener)
