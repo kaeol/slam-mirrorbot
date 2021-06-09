@@ -31,7 +31,7 @@ class AriaDownloadHelper(DownloadHelper):
             gdrive = GoogleDriveHelper(None)
             smsg, button = gdrive.drive_list(sname)
           if smsg:
-              dl.getListener().onDownloadError(f'<code>File is already available in Drive.😡</code>\n\n📒 <i> Must Search Files! Before Mirroring</i>')
+              dl.getListener().onDownloadError(f'File is already available in Drive.😡\n\n📒 Must Search Files! Before Mirroring')
               sendMarkup("Here are the search results:", dl.getListener().bot, dl.getListener().update, button)
               aria2.remove([download])
               return
