@@ -14,7 +14,7 @@ def cloneNode(update, context):
         link = args[1]
         gd = GoogleDriveHelper()
         if CLONE_LIMIT is not None or STOP_DUPLICATE_CLONE:
-            msg1 = sendMessage(f"Checking Your Link...", context.bot, update)
+            msg1 = sendMessage(f"<code>Checking Your Link...</code>", context.bot, update)
             res, clonesize, name = gd.clonehelper(link)
             if res != "":
                deleteMessage(context.bot, msg1)
@@ -31,7 +31,7 @@ def cloneNode(update, context):
             limit = CLONE_LIMIT
             limit = limit.split(' ', maxsplit=1)
             limitint = int(limit[0])
-            msg2 = f'<b> Your Link Size </b>: <code>{get_readable_file_size(clonesize)}</code>\n\n<b> Cloning Limit is:</b> ➩ <code>{CLONE_LIMIT}.</code>.'
+            msg2 = f'<b>📀 Your Link Size </b>: <code>{get_readable_file_size(clonesize)}</code>\n\n<b>🎄 Clone Limit is:</b>  <code>{CLONE_LIMIT}</code>'
             if 'GB' in limit or 'gb' in limit:
                 if clonesize > limitint * 1024**3:
                     deleteMessage(context.bot, msg1)
