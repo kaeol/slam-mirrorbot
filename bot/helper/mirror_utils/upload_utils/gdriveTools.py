@@ -101,7 +101,7 @@ class GoogleDriveHelper:
                                      resumable=False)
         file_metadata = {
             'name': file_name,
-            'description': 'Uploaded using Slam Mirror Bot',
+            'description': 'Uploaded using MAXX MIRROR BOT',
             'mimeType': mime_type,
         }
         if parent_id is not None:
@@ -321,6 +321,7 @@ class GoogleDriveHelper:
         return files
  
     def clone(self, link):
+        self.transferred_size = 0
         try:
             file_id = self.getIdFromUrl(link)
         except (KeyError,IndexError):
@@ -360,7 +361,7 @@ class GoogleDriveHelper:
                     buttons.buildbutton(f"{BUTTON_SIX_NAME}", f"{BUTTON_SIX_URL}")
             else:
                 file = self.copyFile(meta.get('id'), parent_id)
-                msg += f'<b>Filename: </b><code>{file.get("name")}</code>'
+                msg += f'<b>📗 FileName:</b> <code>{file.get("name")}</code>'
                 durl = self.__G_DRIVE_BASE_DOWNLOAD_URL.format(file.get("id"))
                 buttons = button_build.ButtonMaker()
                 if SHORTENER is not None and SHORTENER_API is not None:
@@ -373,7 +374,7 @@ class GoogleDriveHelper:
                 except:
                     typeee = 'File' 
                 try:
-                    msg += f'\n<b>📀 Total Size:</b> <code>{get_readable_file_size(int(meta.get("size")))}</code>'
+                    msg += f'\n\n<b>📀 Total Size:</b> <code>{get_readable_file_size(int(meta.get("size")))}</code>'
                     msg += f'\n<b>🔈 Type:</b> <code>{typeee}</code>'
                 except TypeError:
                     pass
