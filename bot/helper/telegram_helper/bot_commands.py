@@ -19,10 +19,10 @@ class _BotCommands:
         self.HelpCommand = 'help'
         self.LogCommand = 'log'
         self.SpeedCommand = 'speedtest'
-        self.CloneCommand = 'copy'
+        self.CloneCommand = 'copy_gdrive'
         self.CountCommand = 'count'
-        self.WatchCommand = 'ytdl'
-        self.TarWatchCommand = 'playlist'
+        self.WatchCommand = 'ytdl_mirror'
+        self.TarWatchCommand = 'playlist_mirror'
         self.DeleteCommand = 'del'
         self.UsageCommand = 'usage'
 
