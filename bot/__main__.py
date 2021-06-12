@@ -10,7 +10,7 @@ import pytz
 import time
 
 from telegram import ParseMode, BotCommand
-rom telegram.ext import CommandHandler
+from telegram.ext import CommandHandler
 from bot import bot, dispatcher, updater, botStartTime, IMAGE_URL
 from bot.helper.ext_utils import fs_utils
 from bot.helper.telegram_helper.bot_commands import BotCommands
