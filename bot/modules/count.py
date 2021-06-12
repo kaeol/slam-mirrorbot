@@ -6,7 +6,6 @@ from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot import dispatcher
  
  
-@run_async
 def countNode(update, context):
     args = update.message.text.split(" ", maxsplit=1)
     if len(args) > 1:
