@@ -1,7 +1,7 @@
 class _BotCommands:
     def __init__(self):
         self.StartCommand = 'start'
-        self.MirrorCommand = 'tgfiles
+        self.MirrorCommand = 'mrr
         self.UnzipMirrorCommand = 'e'
         self.TarMirrorCommand = 'tarm'
         self.CancelMirror = 'cancel'
@@ -19,10 +19,10 @@ class _BotCommands:
         self.HelpCommand = 'help'
         self.LogCommand = 'log'
         self.SpeedCommand = 'speedtest'
-        self.CloneCommand = 'copy'
+        self.CloneCommand = 'copy@CloneGDriveBot'
         self.CountCommand = 'count'
-        self.WatchCommand = 'youtube'
-        self.TarWatchCommand = 'playlist'
+        self.WatchCommand = 'youtubemirror'
+        self.TarWatchCommand = 'playlistmirror'
         self.DeleteCommand = 'del'
         self.UsageCommand = 'usage'
 
