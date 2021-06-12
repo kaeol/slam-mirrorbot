@@ -1,4 +1,4 @@
-from telegram.ext import CommandHandler, run_async
+from telegram.ext import CommandHandler
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.telegram_helper.message_utils import sendMarkup, deleteMessage, sendMessage
 from bot.helper.telegram_helper.filters import CustomFilters
@@ -65,5 +65,5 @@ def cloneNode(update, context):
     else:
         sendMessage('<code>Provide G-Drive Shareable Link to Clone.</code>', context.bot, update)
  
-clone_handler = CommandHandler(BotCommands.CloneCommand, cloneNode, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
+clone_handler = CommandHandler(BotCommands.CloneCommand, cloneNode, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
 dispatcher.add_handler(clone_handler)
