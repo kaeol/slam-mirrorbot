@@ -7,7 +7,6 @@ from bot import dispatcher, CLONE_LIMIT, STOP_DUPLICATE_CLONE
 from bot.helper.ext_utils.bot_utils import get_readable_file_size
  
  
-@run_async
 def cloneNode(update, context):
     args = update.message.text.split(" ", maxsplit=1)
     if len(args) > 1:
