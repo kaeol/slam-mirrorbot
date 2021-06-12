@@ -1,17 +1,16 @@
 import math
-
+ 
 import requests
 import heroku3
-
+ 
 from bot import dispatcher, HEROKU_APP_NAME, HEROKU_API_KEY
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.message_utils import sendMessage
 from telegram import update
-from telegram.ext import run_async, CommandHandler
-
-
-@run_async
+from telegram.ext import CommandHandler
+ 
+ 
 def dyno_usage(update, context):
     heroku_api = "https://api.heroku.com"
     if HEROKU_API_KEY is not None and HEROKU_APP_NAME is not None:
@@ -48,7 +47,7 @@ def dyno_usage(update, context):
             hours = math.floor(minutes_remain / 60)
             minutes = math.floor(minutes_remain % 60)
             day = math.floor(hours / 24)
-
+ 
             """App Quota."""
             Apps = result["apps"]
             for apps in Apps:
@@ -59,7 +58,7 @@ def dyno_usage(update, context):
             else:
                 AppQuotaUsed = 0
                 AppPercent = 0
-
+ 
             AppHours = math.floor(AppQuotaUsed / 60)
             AppMinutes = math.floor(AppQuotaUsed % 60)
             
@@ -74,9 +73,9 @@ def dyno_usage(update, context):
                 update
             )
             return True
-
-
+ 
+ 
 dyno_usage_handler = CommandHandler(command=BotCommands.UsageCommand, callback=dyno_usage,
-                                    filters=CustomFilters.owner_filter | CustomFilters.sudo_user)
+                                    filters=CustomFilters.owner_filter | CustomFilters.sudo_user, run_async=True)
                                     
 dispatcher.add_handler(dyno_usage_handler)
