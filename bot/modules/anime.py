@@ -1,14 +1,15 @@
 import datetime
 import html
 import textwrap
-
+ 
 import bs4
 import requests
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
-from telegram.ext import run_async, CallbackContext, CommandHandler
-
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
+from telegram.ext import CommandHandler
+ 
+from bot.helper.telegram_helper.filters import CustomFilters
 from bot import dispatcher, IMAGE_URL
-
+ 
 def shorten(description, info = 'anilist.co'):
     msg = "" 
     if len(description) > 700:
@@ -17,8 +18,8 @@ def shorten(description, info = 'anilist.co'):
     else:
           msg += f"\n*Description*:_{description}_"
     return msg
-
-
+ 
+ 
 #time formatter from uniborg
 def t(milliseconds: int) -> str:
     """Inputs time in milliseconds, to get beautified time,
@@ -52,7 +53,7 @@ airing_query = '''
     }
 }
 '''
-
+ 
 fav_query = """
 query ($id: Int) { 
     Media (id: $id, type: ANIME) { 
@@ -65,7 +66,7 @@ query ($id: Int) {
     }
 }
 """
-
+ 
 anime_query = '''
     query ($id: Int,$search: String) { 
         Media (id: $id, type: ANIME,search: $search) { 
@@ -119,7 +120,7 @@ character_query = """
     }
 }
 """
-
+ 
 manga_query = """
 query ($id: Int,$search: String) { 
     Media (id: $id, type: MANGA,search: $search) { 
@@ -143,13 +144,12 @@ query ($id: Int,$search: String) {
     }
 }
 """
-
-
+ 
+ 
 url = 'https://graphql.anilist.co'
-
-
-@run_async
-def anime(update: Update, context: CallbackContext):
+ 
+ 
+def anime(update, context):
     message = update.effective_message
     search = message.text.split(' ', 1)
     if len(search) == 1: return
@@ -189,9 +189,9 @@ def anime(update: Update, context: CallbackContext):
                 update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(buttons))
         else: 
             update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(buttons))
-
-@run_async
-def character(update: Update, _):
+ 
+ 
+def character(update, _):
     message = update.effective_message
     search = message.text.split(' ', 1)
     if len(search) == 1:
@@ -210,9 +210,9 @@ def character(update: Update, _):
             image = image.get('large')
             update.effective_message.reply_photo(photo = image, caption = msg, parse_mode=ParseMode.MARKDOWN)
         else: update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
-
-@run_async
-def manga(update: Update, _):
+ 
+ 
+def manga(update, _):
     message = update.effective_message
     search = message.text.split(' ', 1)
     if len(search) == 1:
@@ -248,8 +248,8 @@ def manga(update: Update, _):
                 msg += f" [〽️]({image})"
                 update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(buttons))
         else: update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(buttons))
-
-@run_async
+ 
+ 
 def weebhelp(update, context):
     help_string = '''
 • `/anime`*:* Search Anime
@@ -257,13 +257,13 @@ def weebhelp(update, context):
 • `/manga`*:* Search Manga
 '''
     update.effective_message.reply_photo(IMAGE_URL, help_string, parse_mode=ParseMode.MARKDOWN)
-
-
-ANIME_HANDLER = CommandHandler("anime", anime)
-CHARACTER_HANDLER = CommandHandler("character", character)
-MANGA_HANDLER = CommandHandler("manga", manga)
-WEEBHELP_HANDLER = CommandHandler("weebhelp", weebhelp)
-
+ 
+ 
+ANIME_HANDLER = CommandHandler("anime", anime, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+CHARACTER_HANDLER = CommandHandler("character", character, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+MANGA_HANDLER = CommandHandler("manga", manga, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+WEEBHELP_HANDLER = CommandHandler("weebhelp", weebhelp, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+ 
 dispatcher.add_handler(ANIME_HANDLER)
 dispatcher.add_handler(CHARACTER_HANDLER)
 dispatcher.add_handler(MANGA_HANDLER)
