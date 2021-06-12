@@ -3,17 +3,17 @@ import os
 import urllib.request as urllib
 from PIL import Image
 from html import escape
-
+ 
+from bot.helper.telegram_helper.filters import CustomFilters
 from telegram import ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram import TelegramError, Update
-from telegram.ext import run_async, CallbackContext, CommandHandler
+from telegram import TelegramError
+from telegram.ext import CommandHandler
 from telegram.utils.helpers import mention_html
-
+ 
 from bot import dispatcher, IMAGE_URL
-
-
-@run_async
-def stickerid(update: Update, context: CallbackContext):
+ 
+ 
+def stickerid(update, context):
     msg = update.effective_message
     if msg.reply_to_message and msg.reply_to_message.sticker:
         update.effective_message.reply_text(
@@ -30,9 +30,9 @@ def stickerid(update: Update, context: CallbackContext):
             ", Please reply to sticker message to get id sticker",
             parse_mode=ParseMode.HTML,
         )
-
-
-def getsticker(update: Update, context: CallbackContext):
+ 
+ 
+def getsticker(update, context):
     bot = context.bot
     msg = update.effective_message
     chat_id = update.effective_chat.id
@@ -45,10 +45,9 @@ def getsticker(update: Update, context: CallbackContext):
     else:
         update.effective_message.reply_text(
             "Please reply to a sticker for me to upload its PNG.")
-
-
-@run_async
-def kang(update: Update, context: CallbackContext):
+ 
+ 
+def kang(update, context):
     msg = update.effective_message
     user = update.effective_user
     args = context.args
@@ -71,33 +70,33 @@ def kang(update: Update, context: CallbackContext):
     kangsticker = "kangsticker.png"
     is_animated = False
     file_id = ""
-
+ 
     if msg.reply_to_message:
         if msg.reply_to_message.sticker:
             if msg.reply_to_message.sticker.is_animated:
                 is_animated = True
             file_id = msg.reply_to_message.sticker.file_id
-
+ 
         elif msg.reply_to_message.photo:
             file_id = msg.reply_to_message.photo[-1].file_id
         elif msg.reply_to_message.document:
             file_id = msg.reply_to_message.document.file_id
         else:
             msg.reply_text("Yea, I can't kang that.")
-
+ 
         kang_file = context.bot.get_file(file_id)
         if not is_animated:
             kang_file.download("kangsticker.png")
         else:
             kang_file.download("kangsticker.tgs")
-
+ 
         if args:
             sticker_emoji = str(args[0])
         elif msg.reply_to_message.sticker and msg.reply_to_message.sticker.emoji:
             sticker_emoji = msg.reply_to_message.sticker.emoji
         else:
             sticker_emoji = "🤔"
-
+ 
         if not is_animated:
             try:
                 im = Image.open(kangsticker)
@@ -132,12 +131,12 @@ def kang(update: Update, context: CallbackContext):
                     + f"\nEmoji is: {sticker_emoji}",
                     parse_mode=ParseMode.MARKDOWN,
                 )
-
+ 
             except OSError as e:
                 msg.reply_text("I can only kang images m8.")
                 print(e)
                 return
-
+ 
             except TelegramError as e:
                 if e.message == "Stickerset_invalid":
                     makepack_internal(
@@ -176,7 +175,7 @@ def kang(update: Update, context: CallbackContext):
                         parse_mode=ParseMode.MARKDOWN,
                     )
                 print(e)
-
+ 
         else:
             packname = "animated" + str(user.id) + "_by_" + context.bot.username
             packname_found = 0
@@ -228,7 +227,7 @@ def kang(update: Update, context: CallbackContext):
                         parse_mode=ParseMode.MARKDOWN,
                     )
                 print(e)
-
+ 
     elif args:
         try:
             try:
@@ -327,8 +326,8 @@ def kang(update: Update, context: CallbackContext):
         os.remove("kangsticker.png")
     elif os.path.isfile("kangsticker.tgs"):
         os.remove("kangsticker.tgs")
-
-
+ 
+ 
 def makepack_internal(
     update,
     context,
@@ -362,7 +361,7 @@ def makepack_internal(
                 tgs_sticker=tgs_sticker,
                 emojis=emoji,
             )
-
+ 
     except TelegramError as e:
         print(e)
         if e.message == "Sticker set name is already occupied":
@@ -385,7 +384,7 @@ def makepack_internal(
                 parse_mode=ParseMode.MARKDOWN,
             )
         return
-
+ 
     if success:
         msg.reply_text(
             "Sticker pack successfully created. Get it [here](t.me/addstickers/%s)"
@@ -395,9 +394,8 @@ def makepack_internal(
     else:
         msg.reply_text(
             "Failed to create sticker pack. Possibly due to blek mejik.")
-
-
-@run_async
+ 
+ 
 def delsticker(update, context):
     msg = update.effective_message
     if msg.reply_to_message and msg.reply_to_message.sticker:
@@ -410,9 +408,8 @@ def delsticker(update, context):
         update.effective_message.reply_text(
             "Please reply to sticker message to del sticker"
         )
-
-
-@run_async
+ 
+ 
 def stickhelp(update, context):
     help_string = '''
 • `/stickerid`*:* Reply to a Sticker to me to tell you its file ID.
@@ -421,14 +418,14 @@ def stickhelp(update, context):
 • `/remove`*:* Replay to a Sticker to remove Sticker from an existing pack.
 '''
     update.effective_message.reply_photo(IMAGE_URL, help_string, parse_mode=ParseMode.MARKDOWN)
-
-STICKERID_HANDLER = CommandHandler("stickerid", stickerid)
-GETSTICKER_HANDLER = CommandHandler("getsticker", getsticker)
-KANG_HANDLER = CommandHandler("kang", kang)
-DEL_HANDLER = CommandHandler("remove", delsticker)
-STICKHELP_HANDLER = CommandHandler("stickerhelp", stickhelp)
-
-
+ 
+STICKERID_HANDLER = CommandHandler("stickerid", stickerid, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+GETSTICKER_HANDLER = CommandHandler("getsticker", getsticker, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+KANG_HANDLER = CommandHandler("kang", kang, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+DEL_HANDLER = CommandHandler("remove", delsticker, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+STICKHELP_HANDLER = CommandHandler("stickerhelp", stickhelp, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+ 
+ 
 dispatcher.add_handler(STICKERID_HANDLER)
 dispatcher.add_handler(GETSTICKER_HANDLER)
 dispatcher.add_handler(KANG_HANDLER)
