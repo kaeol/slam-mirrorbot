@@ -3,10 +3,9 @@ from bot.helper.telegram_helper.filters import CustomFilters
 from bot import dispatcher, AUTHORIZED_CHATS
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from telegram import Update, ParseMode
-from telegram.ext import Filters, run_async, CommandHandler
-
-
-@run_async
+from telegram.ext import Filters, CommandHandler
+ 
+ 
 def speedtest(update, context):
     message = update.effective_message
     ed_msg = message.reply_text("Running Speed Test . . . ")
@@ -34,7 +33,7 @@ def speedtest(update, context):
         update.effective_message.reply_photo(path, string_speed, parse_mode=ParseMode.HTML)
     except:
         update.effective_message.reply_text(string_speed, parse_mode=ParseMode.HTML)
-
+ 
 def speed_convert(size):
     """Hi human, you can't read bytes?"""
     power = 2 ** 10
@@ -44,9 +43,9 @@ def speed_convert(size):
         size /= power
         zero += 1
     return f"{round(size, 2)} {units[zero]}"
-
-
+ 
+ 
 SPEED_HANDLER = CommandHandler(BotCommands.SpeedCommand, speedtest, 
-                                                  filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
-
+                                                  filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+ 
 dispatcher.add_handler(SPEED_HANDLER)
