@@ -1,4 +1,4 @@
-from bot import aria2, download_dict_lock, STOP_DUPLICATE_MIRROR, MAX_TORRENT_SIZE, ENABLE_FILESIZE_LIMIT
+from bot import aria2, download_dict_lock, STOP_DUPLICATE_MIRROR, TORRENT_DIRECT_LIMIT
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.ext_utils.bot_utils import *
 from .download_helper import DownloadHelper
@@ -7,44 +7,58 @@ from bot.helper.telegram_helper.message_utils import *
 import threading
 from aria2p import API
 from time import sleep
-
-
+ 
+ 
 class AriaDownloadHelper(DownloadHelper):
-
+ 
     def __init__(self):
         super().__init__()
-
+ 
     @new_thread
     def __onDownloadStarted(self, api, gid):
-        sleep(1)
-        LOGGER.info(f"onDownloadStart: {gid}")
-        dl = getDownloadByGid(gid)
-        download = api.get_download(gid)
-        self.name = download.name
-        sname = download.name
-        if STOP_DUPLICATE_MIRROR:
-          if self.listener.isTar:
-            sname = sname + ".tar"
-          if self.listener.extract:
-            smsg = None
-          else:
-            gdrive = GoogleDriveHelper(None)
-            smsg, button = gdrive.drive_list(sname)
-          if smsg:
-              dl.getListener().onDownloadError(f'File is already available in Drive.😡\n\n📒 Must Search Files! Before Mirroring')
-              sendMarkup("Here are the search results:", dl.getListener().bot, dl.getListener().update, button)
-              aria2.remove([download])
-              return
-
-        size = download.total_length
-        if ENABLE_FILESIZE_LIMIT:
-          if size / 1024 / 1024 / 1024 > MAX_TORRENT_SIZE:
-              LOGGER.info(f"Download size Exceeded: {gid}")
-              dl.getListener().onDownloadError(f'📀 𝗙𝗶𝗹𝗲 𝗦𝗶𝘇𝗲:\n➩ 〘{get_readable_file_size(size)}〙\n\n🏷️ 𝗠𝗶𝗿𝗿𝗼𝗿 𝗟𝗶𝗺𝗶𝘁: {MAX_TORRENT_SIZE}GB')
-              aria2.remove([download])
-              return
+        if STOP_DUPLICATE_MIRROR or TORRENT_DIRECT_LIMIT is not None:
+            sleep(1)
+            dl = getDownloadByGid(gid)
+            download = api.get_download(gid)
+            
+            if STOP_DUPLICATE_MIRROR:
+                LOGGER.info(f"Checking File/Folder if already in Drive...")
+                self.name = download.name
+                sname = download.name
+                if self.listener.isTar:
+                    sname = sname + ".tar"
+                if self.listener.extract:
+                    smsg = None
+                else:
+                    gdrive = GoogleDriveHelper(None)
+                    smsg, button = gdrive.drive_list(sname)
+                if smsg:
+                    dl.getListener().onDownloadError(f'File is already available in Drive.😡\n\n📒 Must Search Files! Before Mirroring')
+                    sendMarkup("Here are the search results:", dl.getListener().bot, dl.getListener().update, button)
+                    aria2.remove([download])
+                    return
+ 
+            if TORRENT_DIRECT_LIMIT is not None:
+                LOGGER.info(f"Checking File/Folder Size...")
+                with download_dict_lock:
+                    for down in list(download_dict.values()):
+                        sleep(1)
+                        size = down.size_raw()
+                limit = TORRENT_DIRECT_LIMIT
+                limit = limit.split(' ', maxsplit=1)
+                limitint = int(limit[0])
+                if 'GB' in limit or 'gb' in limit:
+                    if size > limitint * 1024**3:
+                        dl.getListener().onDownloadError(f'📀 𝗙𝗶𝗹𝗲 𝗦𝗶𝘇𝗲:\n➩ 〘{get_readable_file_size(size)}〙\n\n🏷️ 𝗠𝗶𝗿𝗿𝗼𝗿 𝗟𝗶𝗺𝗶𝘁: 〘{TORRENT_DIRECT_LIMIT}〙')
+                        aria2.remove([download])
+                        return
+                elif 'TB' in limit or 'tb' in limit:
+                    if size > limitint * 1024**4:
+                        dl.getListener().onDownloadError(f'📀 𝗙𝗶𝗹𝗲 𝗦𝗶𝘇𝗲:\n➩ 〘{get_readable_file_size(size)}〙\n\n🏷️ 𝗠𝗶𝗿𝗿𝗼𝗿 𝗟𝗶𝗺𝗶𝘁: 〘{TORRENT_DIRECT_LIMIT}〙')
+                        aria2.remove([download])
+                        return
         update_all_messages()
-
+ 
     def __onDownloadComplete(self, api: API, gid):
         LOGGER.info(f"onDownloadComplete: {gid}")
         dl = getDownloadByGid(gid)
@@ -61,19 +75,19 @@ class AriaDownloadHelper(DownloadHelper):
         else:
             if dl:
                 threading.Thread(target=dl.getListener().onDownloadComplete).start()
-
+ 
     @new_thread
     def __onDownloadPause(self, api, gid):
         LOGGER.info(f"onDownloadPause: {gid}")
         dl = getDownloadByGid(gid)
         dl.getListener().onDownloadError('𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱 𝘀𝘁𝗼𝗽𝗽𝗲𝗱 𝗯𝘆 𝘂𝘀𝗲𝗿!')
-
+ 
     @new_thread
     def __onDownloadStopped(self, api, gid):
         LOGGER.info(f"onDownloadStop: {gid}")
         dl = getDownloadByGid(gid)
-        if dl: dl.getListener().onDownloadError('𝘠𝘰𝘶𝘳 𝘛𝘰𝘳𝘳𝘦𝘯𝘵 𝘪𝘴 𝘋𝘦𝘢𝘥.\n\n★ NO SEEDS AVAILABLE IN YOUR LINK\n\n⛔ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒄𝒉𝒆𝒄𝒌 𝒚𝒐𝒖𝒓 𝒍𝒊𝒏𝒌! 𝑩𝒆𝒇𝒐𝒓𝒆 𝑴𝒊𝒓𝒓𝒐𝒓')
-
+        if dl: dl.getListener().onDownloadError('𝘠𝘰𝘶𝘳 𝘛𝘰𝘳𝘳𝘦𝘯𝘵 𝘪𝘴 𝘋𝘦𝘢𝘥.\n\n★ Not Available SEEDS in Your Link\n\n⛔ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒄𝒉𝒆𝒄𝒌 𝒚𝒐𝒖𝒓 𝒍𝒊𝒏𝒌! 𝑩𝒆𝒇𝒐𝒓𝒆 𝑴𝒊𝒓𝒓𝒐𝒓')
+ 
     @new_thread
     def __onDownloadError(self, api, gid):
         sleep(0.5)  # sleep for split second to ensure proper dl gid update from onDownloadComplete
@@ -83,14 +97,14 @@ class AriaDownloadHelper(DownloadHelper):
         error = download.error_message
         LOGGER.info(f"Download Error: {error}")
         if dl: dl.getListener().onDownloadError(error)
-
+ 
     def start_listener(self):
         aria2.listen_to_notifications(threaded=True, on_download_start=self.__onDownloadStarted,
                                       on_download_error=self.__onDownloadError,
                                       on_download_pause=self.__onDownloadPause,
                                       on_download_stop=self.__onDownloadStopped,
                                       on_download_complete=self.__onDownloadComplete)
-
+ 
     def add_download(self, link: str, path, listener, filename):
         if is_magnet(link):
             download = aria2.add_magnet(link, {'dir': path, 'out': filename})
