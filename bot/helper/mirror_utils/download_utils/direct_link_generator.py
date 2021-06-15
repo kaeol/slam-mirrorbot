@@ -7,7 +7,7 @@
 from https://github.com/AvinashReddy3108/PaperplaneExtended . I hereby take no credit of the following code other
 than the modifications. See https://github.com/AvinashReddy3108/PaperplaneExtended/commits/master/userbot/modules/direct_links.py
 for original authorship. """
-
+ 
 from bot import UPTOBOX_TOKEN
 import logging
 import json
@@ -17,21 +17,25 @@ import urllib.parse
 from os import popen
 from random import choice
 from urllib.parse import urlparse
-
+ 
 import lk21
 import requests
 from bs4 import BeautifulSoup
 from js2py import EvalJs
 from lk21.extractors.bypasser import Bypass
 from base64 import standard_b64encode
-
+from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
-
-
+ 
+ 
 def direct_link_generator(link: str):
     """ direct links generator """
     if not link:
         raise DirectDownloadLinkException("`No links found!`")
+    elif 'youtube.com' in link or 'youtu.be' in link:
+        raise DirectDownloadLinkException(f"Youtube Link use /{BotCommands.WatchCommand} or /{BotCommands.TarWatchCommand}")
+    elif 'drive.google.com' in link:
+        raise DirectDownloadLinkException(f"G-Drive Link use /{BotCommands.CloneCommand}")
     elif 'zippyshare.com' in link:
         return zippy_share(link)
     elif 'yadi.sk' in link:
@@ -46,15 +50,17 @@ def direct_link_generator(link: str):
         return osdn(link)
     elif 'github.com' in link:
         return github(link)
-    elif 'racaty.net' in link:
-        return racaty(link)
     elif 'hxfile.co' in link:
         return hxfile(link)
     elif 'anonfiles.com' in link:
         return anon(link)
+    elif 'letsupload.io' in link:
+        return letsupload(link)
     elif 'fembed.com' in link:
         return fembed(link)
     elif 'femax20.com' in link:
+        return fembed(link)
+    elif 'feurl.com' in link:
         return fembed(link)
     elif 'naniplay.nanime.in' in link:
         return fembed(link)
@@ -70,15 +76,19 @@ def direct_link_generator(link: str):
         return sbembed(link)
     elif '1drv.ms' in link:
         return onedrive(link)
+    elif 'pixeldrain.com' in link:
+        return pixeldrain(link)
     else:
         raise DirectDownloadLinkException(f'No Direct link function found for {link}')
-
-
+ 
+ 
 def zippy_share(url: str) -> str:
+    """ ZippyShare direct links generator
+    Based on https://github.com/KenHV/Mirror-Bot """
     link = re.findall("https:/.(.*?).zippyshare", url)[0]
     response_content = (requests.get(url)).content
     bs_obj = BeautifulSoup(response_content, "lxml")
-
+ 
     try:
         js_script = bs_obj.find("div", {"class": "center",}).find_all(
             "script"
@@ -87,18 +97,18 @@ def zippy_share(url: str) -> str:
         js_script = bs_obj.find("div", {"class": "right",}).find_all(
             "script"
         )[0]
-
+ 
     js_content = re.findall(r'\.href.=."/(.*?)";', str(js_script))
     js_content = 'var x = "/' + js_content[0] + '"'
-
+ 
     evaljs = EvalJs()
     setattr(evaljs, "x", None)
     evaljs.execute(js_content)
     js_content = getattr(evaljs, "x")
-
+ 
     return f"https://{link}.zippyshare.com{js_content}"
-
-
+ 
+ 
 def yandex_disk(url: str) -> str:
     """ Yandex.Disk direct links generator
     Based on https://github.com/wldhx/yadisk-direct """
@@ -113,8 +123,8 @@ def yandex_disk(url: str) -> str:
         return dl_url
     except KeyError:
         raise DirectDownloadLinkException("`Error: File not found/Download limit reached`\n")
-
-
+ 
+ 
 def cm_ru(url: str) -> str:
     """ cloud.mail.ru direct links generator
     Using https://github.com/JrMasterModelBuilder/cmrudl.py """
@@ -132,8 +142,8 @@ def cm_ru(url: str) -> str:
         raise DirectDownloadLinkException("`Error: Can't extract the link`\n")
     dl_url = data['download']
     return dl_url
-
-
+ 
+ 
 def uptobox(url: str) -> str:
     """ Uptobox direct links generator
     based on https://github.com/jovanzers/WinTenCermin """
@@ -156,8 +166,8 @@ def uptobox(url: str) -> str:
             result = req.json()
             dl_url = result['data']['dlLink']
     return dl_url
-
-
+ 
+ 
 def mediafire(url: str) -> str:
     """ MediaFire direct links generator """
     try:
@@ -168,8 +178,8 @@ def mediafire(url: str) -> str:
     info = page.find('a', {'aria-label': 'Download file'})
     dl_url = info.get('href')
     return dl_url
-
-
+ 
+ 
 def osdn(url: str) -> str:
     """ OSDN direct links generator """
     osdn_link = 'https://osdn.net'
@@ -187,8 +197,8 @@ def osdn(url: str) -> str:
         mirror = data.find('input')['value']
         urls.append(re.sub(r'm=(.*)&f', f'm={mirror}&f', link))
     return urls[0]
-
-
+ 
+ 
 def github(url: str) -> str:
     """ GitHub direct links generator """
     try:
@@ -201,26 +211,8 @@ def github(url: str) -> str:
         return dl_url
     except KeyError:
         raise DirectDownloadLinkException("`Error: Can't extract the link`\n")
-
-
-def racaty(url: str) -> str:
-    """ Racaty direct links generator
-    based on https://github.com/breakdowns/slam-mirrorbot """
-    dl_url = ''
-    try:
-        link = re.findall(r'\bhttps?://.*racaty\.net\S+', url)[0]
-    except IndexError:
-        raise DirectDownloadLinkException("`No Racaty links found`\n")
-    reqs=requests.get(link)
-    bss=BeautifulSoup(reqs.text,'html.parser')
-    op=bss.find('input',{'name':'op'})['value']
-    id=bss.find('input',{'name':'id'})['value']
-    rep=requests.post(link,data={'op':op,'id':id})
-    bss2=BeautifulSoup(rep.text,'html.parser')
-    dl_url=bss2.find('a',{'id':'uniqueExpirylink'})['href']
-    return dl_url
-
-
+ 
+ 
 def hxfile(url: str) -> str:
     """ Hxfile direct links generator
     based on https://github.com/breakdowns/slam-mirrorbot """
@@ -232,8 +224,8 @@ def hxfile(url: str) -> str:
     bypasser = lk21.Bypass()
     dl_url=bypasser.bypass_url(link)
     return dl_url
-
-
+ 
+ 
 def anon(url: str) -> str:
     """ Anonfiles direct links generator
     based on https://github.com/breakdowns/slam-mirrorbot """
@@ -245,8 +237,21 @@ def anon(url: str) -> str:
     bypasser = lk21.Bypass()
     dl_url=bypasser.bypass_url(link)
     return dl_url
-
-
+ 
+ 
+def letsupload(url: str) -> str:
+    """ Letsupload direct link generator
+    Based on https://github.com/breakdowns/slam-mirrorbot """
+    dl_url = ''
+    try:
+        link = re.findall(r'\bhttps?://.*letsupload\.io\S+', url)[0]
+    except IndexError:
+        raise DirectDownloadLinkException("`No Letsupload links found`\n")
+    bypasser = lk21.Bypass()
+    dl_url=bypasser.bypass_url(link)
+    return dl_url
+ 
+ 
 def fembed(link: str) -> str:
     """ Fembed direct link generator
     Based on https://github.com/breakdowns/slam-mirrorbot """
@@ -257,8 +262,10 @@ def fembed(link: str) -> str:
     for i in dl_url:
         lst_link.append(dl_url[i])
     return lst_link[count-1]
-
-
+    except:
+        raise DirectDownloadLinkException("ERROR: Can't download file, double check your Fembed link.")
+ 
+ 
 def sbembed(link: str) -> str:
     """ Sbembed direct link generator
     Based on https://github.com/breakdowns/slam-mirrorbot """
@@ -269,8 +276,10 @@ def sbembed(link: str) -> str:
     for i in dl_url:
         lst_link.append(dl_url[i])
     return lst_link[count-1]
-
-
+    except:
+        raise DirectDownloadLinkException("ERROR: Can't download file, double check your Sbembed/Streamsb link.")
+ 
+ 
 def onedrive(link: str) -> str:
     """ Onedrive direct link generator
     Based on https://github.com/UsergeTeam/Userge """
@@ -284,8 +293,21 @@ def onedrive(link: str) -> str:
     file_name = dl_link.rsplit("/", 1)[1]
     resp2 = requests.head(dl_link)
     return dl_link
-
-
+ 
+ 
+def pixeldrain(url: str) -> str:
+    """ Based on https://github.com/yash-dk/TorToolkit-Telegram """
+    url = url.strip("/ ")
+    file_id = url.split("/")[-1]
+    info_link = f"https://pixeldrain.com/api/file/{file_id}/info"
+    dl_link = f"https://pixeldrain.com/api/file/{file_id}"
+    resp = requests.get(info_link).json()
+    if resp["success"]:
+        return dl_link
+    else:
+        raise DirectDownloadLinkException("ERROR: Cant't download due {}.".format(resp.text["value"]))
+ 
+ 
 def useragent():
     """
     useragent random setter
