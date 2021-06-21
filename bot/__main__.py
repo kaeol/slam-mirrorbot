@@ -1,7 +1,8 @@
 import shutil, psutil
 import signal
 import os
- 
+import importlib
+
 from pyrogram import idle
 from bot import app
 from sys import executable
@@ -18,7 +19,12 @@ from bot.helper.telegram_helper.message_utils import *
 from .helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time
 from .helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper import button_build
-from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone, watch, shell, eval, search, delete, speedtest, usage, mediainfo, count
+from bot.modules import ALL_MODULES # Auto Load all modules without name problems
+ 
+for module in ALL_MODULES:
+    imported_module = importlib.import_module("bot.modules." + module)
+    importlib.reload(imported_module)
+
  
 now=datetime.now(pytz.timezone('Asia/Jakarta'))
  
@@ -122,6 +128,10 @@ def bot_help(update, context):
 /{BotCommands.UnAuthorizeCommand}: Unauthorize a chat or a user to use the bot (Can only be invoked by Owner & Sudo of the bot)
  
 /{BotCommands.AuthorizedUsersCommand}: Show authorized users (Only Owner & Sudo)
+
+/{BotCommands.ConfigMenuCommand}: Get Info Menu about bot config (Owner Only).
+ 
+/{BotCommands.UpdateCommand}: Update Bot from Upstream Repo. (Owner Only).
  
 /{BotCommands.AddSudoCommand}: Add sudo user (Only Owner)
  
@@ -133,10 +143,10 @@ def bot_help(update, context):
  
 /{BotCommands.SpeedCommand}: Check Internet Speed of the Host
  
-/shell: Run commands in Shell (Terminal).
+/{BotCommands.MediaInfoCommand}: Get detailed info about replied media (Only for Telegram file).
  
-/mediainfo: Get detailed info about replied media (Only for Telegram file).
- 
+/{BotCommands.ShellCommand}: Run commands in Shell (Terminal).
+  
 /tshelp: Get help for Torrent search module.
 '''
  
@@ -167,7 +177,7 @@ def bot_help(update, context):
  
 /{BotCommands.SpeedCommand}: Check Internet Speed of the Host
  
-/mediainfo: Get detailed info about replied media (Only for Telegram file).
+/{BotCommands.MediaInfoCommand}: Get detailed info about replied media (Only for Telegram file).
  
 /tshelp: Get help for Torrent search module.
 '''
