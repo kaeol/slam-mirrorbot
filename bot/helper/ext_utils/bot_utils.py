@@ -24,7 +24,7 @@ class MirrorStatus:
 
 
 PROGRESS_MAX_SIZE = 100 // 8
-PROGRESS_INCOMPLETE = ['■', '■', '■', '■', '■', '■', '■']
+PROGRESS_INCOMPLETE = ['🟪', '🟪', '🟪', '🟪', '🟪', '🟪', '🟪']
 
 SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
 
@@ -88,10 +88,10 @@ def get_progress_bar_string(status):
     p = min(max(p, 0), 100)
     cFull = p // 8
     cPart = p % 8 - 1
-    p_str = '■' * cFull
+    p_str = '🟪' * cFull
     if cPart >= 0:
         p_str += PROGRESS_INCOMPLETE[cPart]
-    p_str += '□' * (PROGRESS_MAX_SIZE - cFull)
+    p_str += '🟩' * (PROGRESS_MAX_SIZE - cFull)
     p_str = f"[{p_str}]"
     return p_str
 
@@ -100,10 +100,10 @@ def get_readable_message():
     with download_dict_lock:
         msg = ""
         for download in list(download_dict.values()):
-            msg += f"<b>📔 Filename:</b> <code>{download.name()}</code>"
-            msg += f"\n{download.status()}"
+            msg += f"<b>📔 FileName:</b> <code>{download.name()}</code>"
+            msg += f"\n{download.status()}  ( {download.progress()} )"
             if download.status() != MirrorStatus.STATUS_ARCHIVING and download.status() != MirrorStatus.STATUS_EXTRACTING:
-                msg += f"\n{get_progress_bar_string(download)} {download.progress()}" \
+                msg += f"\n{get_progress_bar_string(download)}" \
                        f"\n<b>○ Done ✓:</b> {get_readable_file_size(download.processed_bytes())} of {download.size()}" \
                        f"\n<b>○ Speed :</b> {download.speed()}, \n<b>○ ETA:</b> {download.eta()} "
                 # if hasattr(download, 'is_torrent'):
