@@ -25,10 +25,10 @@ import urllib
 import pathlib
 import os
 import subprocess
-import random
-import string
 import threading
 import re
+import random
+import string
  
 ariaDlManager = AriaDownloadHelper()
 ariaDlManager.start_listener()
