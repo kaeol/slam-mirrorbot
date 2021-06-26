@@ -153,11 +153,11 @@ class MegaDownloadHelper:
             executor.do(api.login, (MEGA_EMAIL_ID, MEGA_PASSWORD))
         link_type = get_mega_link_type(mega_link)
         if link_type == "file":
-            LOGGER.info("File. If your download didn't start, then check your link if it's avialable to download")
+            LOGGER.info("File. If your download didn't start, then check your link if it's available to download")
             executor.do(api.getPublicNode, (mega_link,))
             node = mega_listener.public_node
         else:
-            LOGGER.info("File. If your download didn't start, then check your link if it's avialable to download")
+            LOGGER.info("Folder. If your download didn't start, then check your link if it's available to download")
             folder_api = MegaApi(MEGA_API_KEY,None,None,'TgBot')
             folder_api.addListener(mega_listener)
             executor.do(folder_api.loginToFolder, (mega_link,))
@@ -165,7 +165,7 @@ class MegaDownloadHelper:
         if mega_listener.error is not None:
             return listener.onDownloadError(str(mega_listener.error))
         if STOP_DUPLICATE_MEGA or MEGA_LIMIT is not None:
-            msg = sendMessage('<code>Checking Your Link...</code>', listener.bot, listener.update)
+            msg = sendMessage('Checking Your Link...', listener.bot, listener.update)
         if STOP_DUPLICATE_MEGA:
             LOGGER.info(f'Checking File/Folder if already in Drive')
             mname = node.getName()
@@ -178,7 +178,7 @@ class MegaDownloadHelper:
                 smsg, button = gd.drive_list(mname)
             if smsg:
                 deleteMessage(listener.bot, msg)
-                msg1 = "<b>File/Folder is already available in Drive.</b>\n\n<b>Here are the search results:</b>"
+                msg1 = "File/Folder is already available in Drive.\nHere are the search results:"
                 sendMarkup(msg1, listener.bot, listener.update, button)
                 return
             else:
@@ -190,7 +190,7 @@ class MegaDownloadHelper:
             limit = MEGA_LIMIT
             limit = limit.split(' ', maxsplit=1)
             limitint = int(limit[0])
-            msg3 = f'<b>📮 MEGA Link Mirror Limit:</b>  <code>{MEGA_LIMIT}</code>\n\n💡</b>\n\n<b>Your Link Size is:</b> <code>{get_readable_file_size(api.getSize(node))}</code>'
+            msg3 = f'Failed, Mega limit is {MEGA_LIMIT}.\nYour File/Folder size is {get_readable_file_size(api.getSize(node))}.'
             if 'GB' in limit or 'gb' in limit:
                 if api.getSize(node) > limitint * 1024**3:
                     deleteMessage(listener.bot, msg)
