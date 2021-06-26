@@ -296,8 +296,10 @@ def _mirror(bot, update, isTar=False, extract=False):
             return
 
     listener = MirrorListener(bot, update, pswd, isTar, tag, extract)
+
+    if bot_utils.is_gdrive_link(link):
         if not isTar and not extract:
-            sendMessage(f"Use /copy@CloneGDriveBot To Copy File/Folder", bot, update)
+            sendMessage(f"<b>Use /copy@CloneGDriveBot To Copy File/Folder</b>", bot, update)
             return
         res, size, name = gdriveTools.GoogleDriveHelper().clonehelper(link)
         if res != "":
