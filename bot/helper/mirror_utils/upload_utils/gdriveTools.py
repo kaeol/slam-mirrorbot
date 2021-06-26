@@ -13,6 +13,7 @@ from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from googleapiclient.http import MediaFileUpload
 from tenacity import *
@@ -28,7 +29,7 @@ from bot.helper.ext_utils.fs_utils import get_mime_type, get_path_size
 LOGGER = logging.getLogger(__name__)
 logging.getLogger('googleapiclient.discovery').setLevel(logging.ERROR)
 SERVICE_ACCOUNT_INDEX = 0
-TELEGRAPHLIMIT = 80
+TELEGRAPHLIMIT = 50
  
 class GoogleDriveHelper:
     def __init__(self, name=None, listener=None):
