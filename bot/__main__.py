@@ -1,7 +1,7 @@
 import shutil, psutil
 import signal
 import os
-
+ 
 from pyrogram import idle
 from bot import app
 from sys import executable
@@ -19,7 +19,6 @@ from .helper.ext_utils.bot_utils import get_readable_file_size, get_readable_tim
 from .helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper import button_build
 from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone, watch, shell, eval, search, delete, speedtest, usage, mediainfo, count, config, updates
- 
  
 now=datetime.now(pytz.timezone('Asia/Jakarta'))
  
@@ -55,14 +54,14 @@ This bot can mirror all your links to Google Drive!
 Type /{BotCommands.HelpCommand} to get a list of available commands
 '''
     buttons = button_build.ButtonMaker()
-    buttons.buildbutton("Repo", "https://github.com/MaxxRider/MaxxRider")
-    buttons.buildbutton("Support Group", "https://t.me/MaxxBotChat")
+    buttons.buildbutton("Repo", "https://github.com/breakdowns/slam-mirrorbot")
+    buttons.buildbutton("Support Group", "https://t.me/SlamMirrorSupport")
     reply_markup = InlineKeyboardMarkup(buttons.build_menu(2))
     LOGGER.info('UID: {} - UN: {} - MSG: {}'.format(update.message.chat.id, update.message.chat.username, update.message.text))
     uptime = get_readable_time((time.time() - botStartTime))
     if CustomFilters.authorized_user(update) or CustomFilters.authorized_chat(update):
         if update.message.chat.type == "private" :
-            sendMessage(f"<b>Hey I'm Alive 🙂 check /help</b>\n\nSince: <code>{uptime}</code>", context.bot, update)
+            sendMessage(f"Hey I'm Alive 🙂\n\n➩ /help\nSince: <code>{uptime}</code>", context.bot, update)
         else :
             update.effective_message.reply_photo(IMAGE_URL, start_string, parse_mode=ParseMode.MARKDOWN, reply_markup=reply_markup)
     else :
@@ -123,16 +122,16 @@ def bot_help(update, context):
 /{BotCommands.UnAuthorizeCommand}: Unauthorize a chat or a user to use the bot (Can only be invoked by Owner & Sudo of the bot)
  
 /{BotCommands.AuthorizedUsersCommand}: Show authorized users (Only Owner & Sudo)
-
-/{BotCommands.ConfigMenuCommand}: Get Info Menu about bot config (Owner Only).
- 
-/{BotCommands.UpdateCommand}: Update Bot from Upstream Repo. (Owner Only).
  
 /{BotCommands.AddSudoCommand}: Add sudo user (Only Owner)
  
 /{BotCommands.RmSudoCommand}: Remove sudo users (Only Owner)
  
 /{BotCommands.LogCommand}: Get a log file of the bot. Handy for getting crash reports
+ 
+/{BotCommands.ConfigMenuCommand}: Get Info Menu about bot config (Owner Only).
+ 
+/{BotCommands.UpdateCommand}: Update Bot from Upstream Repo. (Owner Only).
  
 /{BotCommands.UsageCommand}: To see Heroku Dyno Stats (Owner & Sudo only).
  
@@ -141,7 +140,7 @@ def bot_help(update, context):
 /{BotCommands.MediaInfoCommand}: Get detailed info about replied media (Only for Telegram file).
  
 /{BotCommands.ShellCommand}: Run commands in Shell (Terminal).
-  
+ 
 /tshelp: Get help for Torrent search module.
 '''
  
@@ -181,8 +180,6 @@ def bot_help(update, context):
         sendMessage(help_string_adm, context.bot, update)
     else:
         sendMessage(help_string, context.bot, update)
- 
-  
  
 def main():
     fs_utils.start_cleanup()
