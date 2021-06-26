@@ -70,6 +70,13 @@ def getDownloadByGid(gid):
                     return dl
     return None
 
+def getAllDownload():
+    with download_dict_lock:
+        for dlDetails in list(download_dict.values()):
+            if dlDetails.status() == MirrorStatus.STATUS_DOWNLOADING \
+                    or dlDetails.status() == MirrorStatus.STATUS_WAITING:
+                if dlDetails:
+                    return dlDetails
 
 def get_progress_bar_string(status):
     completed = status.processed_bytes() / 8
