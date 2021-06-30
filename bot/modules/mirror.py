@@ -281,7 +281,7 @@ def _mirror(bot, update, isTar=False, extract=False):
     else:
         tag = None
     if not bot_utils.is_url(link) and not bot_utils.is_magnet(link):
-        sendMessage('<a href='https://telegra.ph/HOW-TO-MIRROR-06-08'>🤔 𝐇𝐎𝐖 𝐓𝐎 𝐌𝐈𝐑𝐑𝐎𝐑 ? 👀</a>', bot, update)
+        sendMessage('No download source provided', bot, update)
         return
  
     try:
