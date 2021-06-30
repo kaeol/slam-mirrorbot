@@ -281,7 +281,7 @@ def _mirror(bot, update, isTar=False, extract=False):
     else:
         tag = None
     if not bot_utils.is_url(link) and not bot_utils.is_magnet(link):
-        sendMessage('<b>Opps!! Not Like That 😐</b>\n\n➩ <a href="https://telegra.ph/HOW-TO-MIRROR-06-08"> 𝐇𝐎𝐖 𝐓𝐎 𝐌𝐈𝐑𝐑𝐎𝐑?</a>', bot, update)
+        sendMessage('<b>Opps!! Not Like That 😐</b>\n\n➩ <a href="https://telegra.ph/HOW-TO-MIRROR-06-08"> 𝐇𝐎𝐖 𝐓𝐎 𝐌𝐈𝐑𝐑𝐎𝐑?</a>', disable_web_page_preview=True, parse_mode=Markdown, bot, update)
         return
  
     try:
