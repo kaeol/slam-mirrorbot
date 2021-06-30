@@ -281,7 +281,7 @@ def _mirror(bot, update, isTar=False, extract=False):
     else:
         tag = None
     if not bot_utils.is_url(link) and not bot_utils.is_magnet(link):
-        bot.send_message(update.message.chat_id, text='<b>Opps 🤦! Not Like That</b>\n\nCheck 👉 <a href="https://telegra.ph/HOW-TO-MIRROR-06-08"> 𝐇𝐎𝐖 𝐓𝐎 𝐌𝐈𝐑𝐑𝐎𝐑?</a>',disable_web_page_preview=True, reply_to_message_id=message_id, parse_mode='HTMl')
+        bot.send_message(update.message.chat_id, text='<b>Opps 🤦! Not Like That</b>\n\nCheck 👉 <a href="https://telegra.ph/HOW-TO-MIRROR-06-08"> 𝐇𝐎𝐖 𝐓𝐎 𝐌𝐈𝐑𝐑𝐎𝐑?</a>',disable_web_page_preview=True, reply_to_message_id, parse_mode='HTMl')
         return 
     try:
         link = direct_link_generator(link)
