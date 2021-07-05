@@ -8,6 +8,7 @@ import re
 import json
 import requests
 import logging
+from random import randrange
  
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
@@ -27,7 +28,8 @@ from bot.helper.ext_utils.fs_utils import get_mime_type, get_path_size
  
 LOGGER = logging.getLogger(__name__)
 logging.getLogger('googleapiclient.discovery').setLevel(logging.ERROR)
-SERVICE_ACCOUNT_INDEX = 0
+if USE_SERVICE_ACCOUNTS:
+    SERVICE_ACCOUNT_INDEX = randrange(len(os.listdir("accounts")))
 TELEGRAPHLIMIT = 65
  
 class GoogleDriveHelper:
@@ -423,11 +425,7 @@ class GoogleDriveHelper:
             err = str(err).replace('>', '').replace('<', '')
             LOGGER.error(err)
             if "User rate limit exceeded" in str(err):
-                if meta.get("mimeType") == self.__G_DRIVE_DIR_MIME_TYPE:
-                    msg += "\nUser rate limit exceeded.\nThis folder is empty or missing files/folders"
-                    return msg, InlineKeyboardMarkup(buttons.build_menu(2))
-                else:
-                    msg = "User rate limit exceeded."
+                msg = "User rate limit exceeded."
             elif "File not found" in str(err):
                 msg = "File not found."
             else:
