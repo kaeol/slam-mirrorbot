@@ -21,7 +21,6 @@ def cloneNode(update, context):
                 LOGGER.info(f"Checking File/Folder if already in Drive...")
                 smsg, button = gd.drive_list(name)
                 if smsg:
-                    deleteMessage(context.bot, msg1)
                     msg3 = "File/Folder is already available in Drive.\nHere are the search results:"
                     sendMarkup(msg3, context.bot, update, button)
                     return
