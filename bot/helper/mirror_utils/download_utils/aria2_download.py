@@ -33,8 +33,8 @@ class AriaDownloadHelper(DownloadHelper):
                     gdrive = GoogleDriveHelper(None)
                     smsg, button = gdrive.drive_list(sname)
                 if smsg:
-                    aria2.remove([download])
                     dl.getListener().onDownloadError(f'File is already available in Drive.😡\n\n📒 Must Search Files! Before Mirroring')
+                    aria2.remove([download])
                     sendMarkup("Here are the search results:", dl.getListener().bot, dl.getListener().update, button)
                     return
  
@@ -55,13 +55,13 @@ class AriaDownloadHelper(DownloadHelper):
                     limitint = int(limit[0])
                     if 'G' in limit[1] or 'g' in limit[1]:
                         if size > limitint * 1024**3:
-                            aria2.remove([download])
                             dl.getListener().onDownloadError(f'📀 𝗙𝗶𝗹𝗲 𝗦𝗶𝘇𝗲:\n➩ 〘{get_readable_file_size(size)}〙\n\n🏷️ 𝗠𝗶𝗿𝗿𝗼𝗿 𝗟𝗶𝗺𝗶𝘁: 〘{TORRENT_DIRECT_LIMIT}〙')
+                            aria2.remove([download])
                             return
                     elif 'T' in limit[1] or 't' in limit[1]:
                         if size > limitint * 1024**4:
-                            aria2.remove([download])
                             dl.getListener().onDownloadError(f'📀 𝗙𝗶𝗹𝗲 𝗦𝗶𝘇𝗲:\n➩ 〘{get_readable_file_size(size)}〙\n\n🏷️ 𝗠𝗶𝗿𝗿𝗼𝗿 𝗟𝗶𝗺𝗶𝘁: 〘{TORRENT_DIRECT_LIMIT}〙')
+                            aria2.remove([download])
                             return
         update_all_messages()
  
@@ -73,7 +73,7 @@ class AriaDownloadHelper(DownloadHelper):
             new_gid = download.followed_by_ids[0]
             new_download = api.get_download(new_gid)
             with download_dict_lock:
-                sleep(0.5)
+                sleep(1)
                 download_dict[dl.uid()] = AriaDownloadStatus(new_gid, dl.getListener())
                 if new_download.is_torrent:
                     download_dict[dl.uid()].is_torrent = True
