@@ -673,7 +673,7 @@ class GoogleDriveHelper:
                 except TypeError:
                     pass
         except Exception as err:
-             err = str(err).replace('>', '').replace('<', '')
+            err = str(err).replace('>', '').replace('<', '')
             LOGGER.error(err)
             if "File not found" in str(err):
                 msg = "<code>File not found.</code>"
