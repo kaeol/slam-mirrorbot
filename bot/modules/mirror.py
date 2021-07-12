@@ -133,7 +133,7 @@ class MirrorListener(listeners.MirrorListeners):
             uname = f"@{self.message.from_user.username}"
         else:
             uname = f'<a href="tg://user?id={self.message.from_user.id}">{self.message.from_user.first_name}</a>'
-        msg = f"<b> Hey {uname} your download has been stopped</b>:\n\n🎄 <b>Reason</b>:\n👉 <code>{error}</code>"
+        msg = f"<b> Hey {uname} your download has been stopped</b>\n\n<b>🔘 Reason</b>:\n➩ <code>{error}</code>"
         sendMessage(msg, self.bot, self.update)
         if count == 0:
             self.clean()
@@ -158,7 +158,7 @@ class MirrorListener(listeners.MirrorListeners):
             buttons = button_build.ButtonMaker()
             if SHORTENER is not None and SHORTENER_API is not None:
                 surl = requests.get(f'https://{SHORTENER}/api?api={SHORTENER_API}&url={link}&format=text').text
-                buttons.buildbutton("🌐 𝗚-𝗗𝗥𝗜𝗩𝗘 𝗟𝗜𝗡𝗞 ", surl)
+                buttons.buildbutton("🌐 𝗚-𝗗𝗥𝗜𝗩𝗘 𝗟𝗜𝗡𝗞", surl)
             else:
                 buttons.buildbutton("🌐 𝗚-𝗗𝗥𝗜𝗩𝗘 𝗟𝗜𝗡𝗞", link)
             LOGGER.info(f'Done Uploading {download_dict[self.uid].name()}')
@@ -169,19 +169,19 @@ class MirrorListener(listeners.MirrorListeners):
                     share_url += '/'
                     if SHORTENER is not None and SHORTENER_API is not None:
                         siurl = requests.get(f'https://{SHORTENER}/api?api={SHORTENER_API}&url={share_url}&format=text').text
-                        buttons.buildbutton("𝗜𝗡𝗗𝗘𝗫 𝗟𝗜𝗡𝗞 📦", siurl)
+                        buttons.buildbutton("𝗜𝗡𝗗𝗘𝗫 𝗟𝗜𝗡𝗞 🗳️", siurl)
                     else:
-                        buttons.buildbutton("𝗜𝗡𝗗𝗘𝗫 𝗟𝗜𝗡𝗞 📦", share_url)
+                        buttons.buildbutton("𝗜𝗡𝗗𝗘𝗫 𝗟𝗜𝗡𝗞 🗳️", share_url)
                 else:
                     share_urls = f'{INDEX_URL}/{url_path}?a=view'
                     if SHORTENER is not None and SHORTENER_API is not None:
                         siurl = requests.get(f'https://{SHORTENER}/api?api={SHORTENER_API}&url={share_url}&format=text').text
                         siurls = requests.get(f'https://{SHORTENER}/api?api={SHORTENER_API}&url={share_urls}&format=text').text
-                        buttons.buildbutton("𝗜𝗡𝗗𝗘𝗫 𝗟𝗜𝗡𝗞 📦", siurl)
+                        buttons.buildbutton("𝗜𝗡𝗗𝗘𝗫 𝗟𝗜𝗡𝗞 🗳️", siurl)
                         if VIEW_LINK:
                             buttons.buildbutton("📽️ 𝗪𝗔𝗧𝗖𝗛", siurls)
                     else:
-                        buttons.buildbutton("𝗜𝗡𝗗𝗘𝗫 𝗟𝗜𝗡𝗞 📦", share_url)
+                        buttons.buildbutton("𝗜𝗡𝗗𝗘𝗫 𝗟𝗜𝗡𝗞 🗳️", share_url)
                         if VIEW_LINK:
                             buttons.buildbutton("📽️ 𝗪𝗔𝗧𝗖𝗛", share_urls)
             if BUTTON_FOUR_NAME is not None and BUTTON_FOUR_URL is not None:
@@ -272,7 +272,6 @@ def _mirror(bot, update, isTar=False, extract=False):
                     listener = MirrorListener(bot, update, pswd, isTar, tag, extract)
                     tg_downloader = TelegramDownloadHelper(listener)
                     tg_downloader.add_download(reply_to, f'{DOWNLOAD_DIR}{listener.uid}/', name)
-                    sendStatusMessage(update, bot)
                     if len(Interval) == 0:
                         Interval.append(setInterval(DOWNLOAD_STATUS_UPDATE_INTERVAL, update_all_messages))
                     return
@@ -282,7 +281,8 @@ def _mirror(bot, update, isTar=False, extract=False):
         tag = None
     if not bot_utils.is_url(link) and not bot_utils.is_magnet(link):
         bot.send_message(update.message.chat_id, text='<b>Opps 🤦! Not Like That</b>\n\nCheck 👉 <a href="https://telegra.ph/HOW-TO-MIRROR-06-08"> 𝐇𝐎𝐖 𝐓𝐎 𝐌𝐈𝐑𝐑𝐎𝐑?</a>',disable_web_page_preview=True, reply_to_message_id=update.message.message_id, parse_mode='HTMl')
-        return 
+        return
+ 
     try:
         link = direct_link_generator(link)
     except DirectDownloadLinkException as e:
@@ -293,9 +293,9 @@ def _mirror(bot, update, isTar=False, extract=False):
         if "Youtube" in str(e):
             sendMessage(f"{e}", bot, update)
             return
-
+ 
     listener = MirrorListener(bot, update, pswd, isTar, tag, extract)
-
+ 
     if bot_utils.is_gdrive_link(link):
         if not isTar and not extract:
             sendMessage(f"Use /{BotCommands.CloneCommand} to clone Google Drive file/folder\nUse /{BotCommands.TarMirrorCommand} to make tar of Google Drive folder\nUse /{BotCommands.UnzipMirrorCommand} to extracts archive Google Drive file", bot, update)
