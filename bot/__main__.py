@@ -18,7 +18,7 @@ from bot.helper.telegram_helper.message_utils import *
 from .helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time
 from .helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper import button_build
-from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone, watch, shell, eval, search, delete, speedtest, usage, mediainfo, count, config, updates
+from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone, watch, shell, eval, torrent_search, delete, speedtest, usage, mediainfo, count, config, updates
  
 now=datetime.now(pytz.timezone('Asia/Jakarta'))
  
@@ -61,7 +61,7 @@ Type /{BotCommands.HelpCommand} to get a list of available commands
     uptime = get_readable_time((time.time() - botStartTime))
     if CustomFilters.authorized_user(update) or CustomFilters.authorized_chat(update):
         if update.message.chat.type == "private" :
-            sendMessage(f"Hey I'm Alive 🙂\n\n➩ /help\nSince: <code>{uptime}</code>", context.bot, update)
+            sendMessage(f"Hey I'm Alive 🙂\nSince: <code>{uptime}</code>", context.bot, update)
         else :
             update.effective_message.reply_photo(IMAGE_URL, start_string, parse_mode=ParseMode.MARKDOWN, reply_markup=reply_markup)
     else :
@@ -93,29 +93,33 @@ def bot_help(update, context):
     help_string_adm = f'''
 /{BotCommands.HelpCommand}: To get this message
  
-/{BotCommands.MirrorCommand} [download_url][magnet_link]: Start mirroring the link to Google Drive.
- 
-/{BotCommands.UnzipMirrorCommand} [download_url][magnet_link]: Starts mirroring and if downloaded file is any archive, extracts it to Google Drive
+/{BotCommands.MirrorCommand} [download_url][magnet_link]: Start mirroring the link to Google Drive
  
 /{BotCommands.TarMirrorCommand} [download_url][magnet_link]: Start mirroring and upload the archived (.tar) version of the download
  
-/{BotCommands.CloneCommand}: Copy file/folder to Google Drive
+/{BotCommands.UnzipMirrorCommand} [download_url][magnet_link]: Starts mirroring and if downloaded file is any archive, extracts it to Google Drive
  
-/{BotCommands.CountCommand}: Count file/folder of Google Drive Links
+/{BotCommands.CloneCommand} [drive_url]: Copy file/folder to Google Drive
  
-/{BotCommands.DeleteCommand} [link]: Delete file from Google Drive (Only Owner & Sudo)
+/{BotCommands.CountCommand} [drive_url]: Count file/folder of Google Drive Links
  
-/{BotCommands.WatchCommand} [youtube-dl supported link]: Mirror through youtube-dl. Click /{BotCommands.WatchCommand} for more help.
+/{BotCommands.DeleteCommand} [drive_url]: Delete file from Google Drive (Only Owner & Sudo)
+ 
+/{BotCommands.WatchCommand} [youtube-dl supported link]: Mirror through youtube-dl. Click /{BotCommands.WatchCommand} for more help
  
 /{BotCommands.TarWatchCommand} [youtube-dl supported link]: Mirror through youtube-dl and tar before uploading
  
 /{BotCommands.CancelMirror}: Reply to the message by which the download was initiated and that download will be cancelled
  
+/{BotCommands.CancelAllCommand}: Cancel all running tasks
+ 
+/{BotCommands.ListCommand} [search term]: Searches the search term in the Google Drive, If found replies with the link
+ 
 /{BotCommands.StatusCommand}: Shows a status of all the downloads
  
-/{BotCommands.ListCommand} [search term]: Searches the search term in the Google Drive, if found replies with the link
- 
 /{BotCommands.StatsCommand}: Show Stats of the machine the bot is hosted on
+ 
+/{BotCommands.PingCommand}: Check how long it takes to Ping the Bot
  
 /{BotCommands.AuthorizeCommand}: Authorize a chat or a user to use the bot (Can only be invoked by Owner & Sudo of the bot)
  
@@ -127,59 +131,65 @@ def bot_help(update, context):
  
 /{BotCommands.RmSudoCommand}: Remove sudo users (Only Owner)
  
+/{BotCommands.RestartCommand}: Restart the bot
+ 
 /{BotCommands.LogCommand}: Get a log file of the bot. Handy for getting crash reports
  
-/{BotCommands.ConfigMenuCommand}: Get Info Menu about bot config (Owner Only).
+/{BotCommands.ConfigMenuCommand}: Get Info Menu about bot config (Owner Only)
  
-/{BotCommands.UpdateCommand}: Update Bot from Upstream Repo. (Owner Only).
+/{BotCommands.UpdateCommand}: Update Bot from Upstream Repo (Owner Only)
  
-/{BotCommands.UsageCommand}: To see Heroku Dyno Stats (Owner & Sudo only).
+/{BotCommands.UsageCommand}: To see Heroku Dyno Stats (Owner & Sudo only)
  
 /{BotCommands.SpeedCommand}: Check Internet Speed of the Host
  
-/{BotCommands.MediaInfoCommand}: Get detailed info about replied media (Only for Telegram file).
+/{BotCommands.MediaInfoCommand}: Get detailed info about replied media (Only for Telegram file)
  
-/{BotCommands.ShellCommand}: Run commands in Shell (Terminal).
+/{BotCommands.ShellCommand}: Run commands in Shell (Terminal)
  
-/tshelp: Get help for Torrent search module.
+/{BotCommands.ExecHelpCommand}: Get help for Executor module
+ 
+/{BotCommands.TsHelpCommand}: Get help for Torrent search module
 '''
  
     help_string = f'''
 /{BotCommands.HelpCommand}: To get this message
  
-/{BotCommands.MirrorCommand} [download_url][magnet_link]: Start mirroring the link to Google Drive.
- 
-/{BotCommands.UnzipMirrorCommand} [download_url][magnet_link]: Starts mirroring and if downloaded file is any archive, extracts it to Google Drive
+/{BotCommands.MirrorCommand} [download_url][magnet_link]: Start mirroring the link to Google Drive
  
 /{BotCommands.TarMirrorCommand} [download_url][magnet_link]: Start mirroring and upload the archived (.tar) version of the download
  
-/{BotCommands.CloneCommand}: Copy file/folder to Google Drive
+/{BotCommands.UnzipMirrorCommand} [download_url][magnet_link]: Starts mirroring and if downloaded file is any archive, extracts it to Google Drive
  
-/{BotCommands.CountCommand}: Count file/folder of Google Drive Links
+/{BotCommands.CloneCommand} [drive_url]: Copy file/folder to Google Drive
  
-/{BotCommands.WatchCommand} [youtube-dl supported link]: Mirror through youtube-dl. Click /{BotCommands.WatchCommand} for more help.
+/{BotCommands.CountCommand} [drive_url]: Count file/folder of Google Drive Links
+ 
+/{BotCommands.WatchCommand} [youtube-dl supported link]: Mirror through youtube-dl. Click /{BotCommands.WatchCommand} for more help
  
 /{BotCommands.TarWatchCommand} [youtube-dl supported link]: Mirror through youtube-dl and tar before uploading
  
 /{BotCommands.CancelMirror}: Reply to the message by which the download was initiated and that download will be cancelled
  
-/{BotCommands.StatusCommand}: Shows a status of all the downloads
+/{BotCommands.ListCommand} [search term]: Searches the search term in the Google Drive, If found replies with the link
  
-/{BotCommands.ListCommand} [search term]: Searches the search term in the Google Drive, if found replies with the link
+/{BotCommands.StatusCommand}: Shows a status of all the downloads
  
 /{BotCommands.StatsCommand}: Show Stats of the machine the bot is hosted on
  
+/{BotCommands.PingCommand}: Check how long it takes to Ping the Bot
+ 
 /{BotCommands.SpeedCommand}: Check Internet Speed of the Host
  
-/{BotCommands.MediaInfoCommand}: Get detailed info about replied media (Only for Telegram file).
+/{BotCommands.MediaInfoCommand}: Get detailed info about replied media (Only for Telegram file)
  
-/tshelp: Get help for Torrent search module.
+/{BotCommands.TsHelpCommand}: Get help for Torrent search module
 '''
  
     if CustomFilters.sudo_user(update) or CustomFilters.owner_filter(update):
         sendMessage(help_string_adm, context.bot, update)
     else:
-        sendMessage(help_string, context.bot, update)
+        sendMessage(help_string, context.bot, update) 
  
 def main():
     fs_utils.start_cleanup()
