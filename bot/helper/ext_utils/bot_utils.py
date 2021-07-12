@@ -118,8 +118,6 @@ def get_readable_message():
             msg += "\n\n"
         return msg
 
-
-
 def get_readable_time(seconds: int) -> str:
     result = ''
     (days, remainder) = divmod(seconds, 86400)
